@@ -42,6 +42,7 @@ export interface IUserUseCase {
 export interface IProjectBoardUseCase {
   create(projectBoard: CreateProjectBoard): Promise<void>;
   listAll(): Promise<ProjectBoard[]>;
+  listByAccessCode(accessCode: string): Promise<ProjectBoard[]>;
   getByPro(pro: string): Promise<ProjectBoard | null>;
   update(pro: string, data: UpdateProjectBoard): Promise<ProjectBoard | null>;
   delete(pro: string): Promise<void>;

@@ -26,6 +26,10 @@ export class ProjectBoardUseCase implements IProjectBoardUseCase {
     return this.projectBoardRepository.listAll();
   }
 
+  async listByAccessCode(accessCode: string): Promise<ProjectBoard[]> {
+    return this.projectBoardRepository.listByAccessCode(accessCode);
+  }
+
   async getByPro(pro: string): Promise<ProjectBoard | null> {
     return this.projectBoardRepository.getByPro(pro);
   }

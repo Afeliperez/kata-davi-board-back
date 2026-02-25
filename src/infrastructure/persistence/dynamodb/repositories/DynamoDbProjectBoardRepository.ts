@@ -41,6 +41,25 @@ export class DynamoDbProjectBoardRepository implements ProjectBoardRepository {
     return items.map((item) => ProjectBoardItemMapper.toDomain(item));
   }
 
+  async listByAccessCode(accessCode: string): Promise<ProjectBoard[]> {
+    const result = await this.dynamoClient.send(
+      new ScanCommand({
+        TableName: this.tableName,
+        FilterExpression: 'contains(#accesos, :accessCode)',
+        ExpressionAttributeNames: {
+          '#accesos': 'accesos'
+        },
+        ExpressionAttributeValues: {
+          ':accessCode': accessCode
+        }
+      })
+    );
+
+    const items = (result.Items ?? []) as ProjectBoardItem[];
+
+    return items.map((item) => ProjectBoardItemMapper.toDomain(item));
+  }
+
   async getByPro(pro: string): Promise<ProjectBoard | null> {
     const result = await this.dynamoClient.send(
       new GetCommand({

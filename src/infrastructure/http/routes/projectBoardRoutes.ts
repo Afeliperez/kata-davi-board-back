@@ -7,6 +7,7 @@ export const projectBoardRoutes = (): Router => {
 
   router.post('/', projectBoardController.create);
   router.get('/', projectBoardController.listAll);
+  router.get('/access/:accessCode', projectBoardController.listByAccessCode);
   router.get('/:pro', projectBoardController.getByPro);
   router.put('/:pro', projectBoardController.update);
   router.delete('/:pro', projectBoardController.delete);

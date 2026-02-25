@@ -16,6 +16,24 @@ export class ProjectBoardController {
     return Array.isArray(pro) ? pro[0] : pro;
   }
 
+  private getAccessCodeFromParams(request: Request): string {
+    const { accessCode } = request.params;
+
+    return Array.isArray(accessCode) ? accessCode[0] : accessCode;
+  }
+
+  private getAccessCodeFromQuery(request: Request): string | undefined {
+    const { accessCode } = request.query;
+
+    if (Array.isArray(accessCode)) {
+      const firstValue = accessCode[0];
+
+      return typeof firstValue === 'string' ? firstValue : undefined;
+    }
+
+    return typeof accessCode === 'string' ? accessCode : undefined;
+  }
+
   create = async (request: Request, response: Response): Promise<void> => {
     const { pro, projectName, hu, accesos } = request.body as CreateProjectBoard;
 
@@ -47,8 +65,24 @@ export class ProjectBoardController {
     }
   };
 
-  listAll = async (_request: Request, response: Response): Promise<void> => {
-    const projectBoards = await this.projectBoardUseCase.listAll();
+  listAll = async (request: Request, response: Response): Promise<void> => {
+    const accessCode = this.getAccessCodeFromQuery(request);
+    const projectBoards = accessCode
+      ? await this.projectBoardUseCase.listByAccessCode(accessCode)
+      : await this.projectBoardUseCase.listAll();
+
+    response.status(200).json({ data: projectBoards });
+  };
+
+  listByAccessCode = async (request: Request, response: Response): Promise<void> => {
+    const accessCode = this.getAccessCodeFromParams(request);
+
+    if (!accessCode) {
+      response.status(400).json({ error: 'accessCode es requerido' });
+      return;
+    }
+
+    const projectBoards = await this.projectBoardUseCase.listByAccessCode(accessCode);
 
     response.status(200).json({ data: projectBoards });
   };
