@@ -1,4 +1,9 @@
 import { Board } from '../entities/Board';
+import {
+  CreateProjectBoard,
+  ProjectBoard,
+  UpdateProjectBoard
+} from '../entities/ProjectBoard';
 import { CreateUser, User } from '../entities/User';
 
 export interface IListBoardsUseCase {
@@ -32,4 +37,12 @@ export interface IUserUseCase {
   login(cc: string, password: string): Promise<LoginResult | null>;
   update(cc: string, data: Partial<CreateUser>): Promise<User | null>;
   delete(cc: string): Promise<void>;
+}
+
+export interface IProjectBoardUseCase {
+  create(projectBoard: CreateProjectBoard): Promise<void>;
+  listAll(): Promise<ProjectBoard[]>;
+  getByPro(pro: string): Promise<ProjectBoard | null>;
+  update(pro: string, data: UpdateProjectBoard): Promise<ProjectBoard | null>;
+  delete(pro: string): Promise<void>;
 }

@@ -11,6 +11,7 @@ export interface EnvironmentConfig {
   dynamodbEndpoint?: string;
   dynamodbTableName: string;
   dynamodbUsersTableName: string;
+  dynamodbProjectBoardTableName: string;
   apiPath: string;
   jwtSecret: string;
   jwtExpiresIn: string;
@@ -29,6 +30,8 @@ export class EnvConfig {
         dynamodbEndpoint: process.env.DYNAMODB_ENDPOINT,
         dynamodbTableName: process.env.DYNAMODB_TABLE_NAME ?? 'boards',
         dynamodbUsersTableName: process.env.DYNAMODB_USERS_TABLE_NAME ?? 'account-kata',
+        dynamodbProjectBoardTableName:
+          process.env.DYNAMODB_PROJECT_BOARD_TABLE_NAME ?? 'project-board',
         corsOrigin: process.env.CORS_ORIGIN,
         apiPath: process.env.API_PATH ?? 'kata-api',
         jwtSecret: process.env.JWT_SECRET ?? 'dev-secret-change-me',

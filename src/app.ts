@@ -3,6 +3,7 @@ import { BoardController } from './infrastructure/http/controllers/BoardControll
 import { authMiddleware } from './infrastructure/http/middlewares/authMiddleware';
 import { errorHandler } from './infrastructure/http/middlewares/errorHandler';
 import { boardRoutes } from './infrastructure/http/routes/boardRoutes';
+import { projectBoardRoutes } from './infrastructure/http/routes/projectBoardRoutes';
 import { userRoutes } from './infrastructure/http/routes/userRoutes';
 import { HttpConfig } from './config/http';
 import { EnvConfig } from './config/env';
@@ -25,6 +26,7 @@ export const createApp = (_boardController?: BoardController): Express => {
     app.use('/boards', boardRoutes(_boardController));
   }
 
+  app.use(`/${apiPath}/project-boards`, projectBoardRoutes());
   app.use(`/${apiPath}/users`, userRoutes());
 
   app.use(errorHandler);
