@@ -1,0 +1,126 @@
+import { Request, Response } from 'express';
+import { IUserUseCase } from '../../../domain/repositories/Contracts';
+import { CreateUser } from '../../../domain/entities/User';
+
+type AwsError = Error & { name?: string };
+
+export class UserController {
+  constructor(private readonly userUseCase: IUserUseCase) {}
+
+  private getCcFromParams(request: Request): string {
+    const { cc } = request.params;
+
+    return Array.isArray(cc) ? cc[0] : cc;
+  }
+
+  create = async (request: Request, response: Response): Promise<void> => {
+    const { cc, email, password, userName, role } = request.body as CreateUser;
+
+    if (!cc || !email || !password || !userName || !role) {
+      response.status(400).json({ error: 'cc, email, password, userName y role son requeridos' });
+      return;
+    }
+
+    try {
+      await this.userUseCase.create({ cc, email, password, userName, role });
+
+      response.status(201).json({ data: { cc, email, userName, role } });
+    } catch (error) {
+      const err = error as AwsError;
+
+      if (err.name === 'ConditionalCheckFailedException') {
+        response.status(409).json({ error: 'El usuario ya existe' });
+        return;
+      }
+
+      throw error;
+    }
+  };
+
+  listAll = async (_request: Request, response: Response): Promise<void> => {
+    const users = await this.userUseCase.listAll();
+
+    response.status(200).json({ data: users });
+  };
+
+  login = async (request: Request, response: Response): Promise<void> => {
+    const { cc, password } = request.body as {
+      cc?: string;
+      password?: string;
+    };
+
+    if (!cc || !password) {
+      response.status(400).json({ error: 'cc y password son requeridos' });
+      return;
+    }
+
+    const loginResult = await this.userUseCase.login(cc, password);
+
+    if (!loginResult) {
+      response.status(401).json({ error: 'Credenciales inválidas' });
+      return;
+    }
+
+    response.status(200).json({ data: loginResult });
+  };
+
+  update = async (request: Request, response: Response): Promise<void> => {
+    const cc = this.getCcFromParams(request);
+    const { email, password, userName, role } = request.body as Partial<CreateUser>;
+
+    if (email === undefined && password === undefined && userName === undefined && role === undefined) {
+      response.status(400).json({ error: 'Debe enviar al menos un campo para actualizar' });
+      return;
+    }
+
+    try {
+      const updatedUser = await this.userUseCase.update(cc, {
+        email,
+        password,
+        userName,
+        role
+      });
+
+      if (!updatedUser) {
+        response.status(404).json({ error: 'Usuario no encontrado' });
+        return;
+      }
+
+      response.status(200).json({
+        data: {
+          cc: updatedUser.cc,
+          email: updatedUser.email,
+          userName: updatedUser.userName,
+          role: updatedUser.role
+        }
+      });
+    } catch (error) {
+      const err = error as AwsError;
+
+      if (err.name === 'ConditionalCheckFailedException') {
+        response.status(404).json({ error: 'Usuario no encontrado' });
+        return;
+      }
+
+      throw error;
+    }
+  };
+
+  delete = async (request: Request, response: Response): Promise<void> => {
+    const cc = this.getCcFromParams(request);
+
+    try {
+      await this.userUseCase.delete(cc);
+      response.status(204).send();
+    } catch (error) {
+      const err = error as AwsError;
+
+      if (err.name === 'ConditionalCheckFailedException') {
+        response.status(404).json({ error: 'Usuario no encontrado' });
+        return;
+      }
+
+      throw error;
+    }
+  };
+}
