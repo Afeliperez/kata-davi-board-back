@@ -38,13 +38,9 @@ export class UserController {
   };
 
   listAll = async (_request: Request, response: Response): Promise<void> => {
-    try {
-      const users = await this.userUseCase.listAll();
+    const users = await this.userUseCase.listAll();
 
-      response.status(200).json({ data: users });
-    } catch (error) {
-      throw error;
-    }
+    response.status(200).json({ data: users });
   };
 
   login = async (request: Request, response: Response): Promise<void> => {
@@ -57,18 +53,14 @@ export class UserController {
       return;
     }
 
-    try {
-      const loginResult = await this.userUseCase.login(cc, password);
+    const loginResult = await this.userUseCase.login(cc, password);
 
-      if (!loginResult) {
-        response.status(401).json({ error: 'Credenciales inválidas' });
-        return;
-      }
-
-      response.status(200).json({ data: loginResult });
-    } catch (error) {
-      throw error;
+    if (!loginResult) {
+      response.status(401).json({ error: 'Credenciales inválidas' });
+      return;
     }
+
+    response.status(200).json({ data: loginResult });
   };
 
   update = async (request: Request, response: Response): Promise<void> => {

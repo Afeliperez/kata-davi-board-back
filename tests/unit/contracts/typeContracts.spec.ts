@@ -9,7 +9,9 @@ import type { IProjectBoardInputPort } from '@application/ports/in/projectBoardI
 describe('Type contracts', () => {
   it('supports IUserRepository contract', () => {
     const repository: IUserRepository = {
-      create: async (_user: ICreateUser): Promise<void> => undefined,
+      create: async (user: ICreateUser): Promise<void> => {
+        void user;
+      },
       listAll: async (): Promise<IUser[]> => [],
       getByCcWithPassword: async (): Promise<ICreateUser | null> => null,
       getByCc: async (): Promise<IUser | null> => null,
@@ -22,11 +24,18 @@ describe('Type contracts', () => {
 
   it('supports IProjectBoardRepository contract', () => {
     const repository: IProjectBoardRepository = {
-      create: async (_projectBoard: IProjectBoard): Promise<void> => undefined,
+      create: async (projectBoard: IProjectBoard): Promise<void> => {
+        void projectBoard;
+      },
       listAll: async (): Promise<IProjectBoard[]> => [],
       listByAccessCode: async (): Promise<IProjectBoard[]> => [],
       getByPro: async (): Promise<IProjectBoard | null> => null,
-      update: async (_pro: string, _data: IUpdateProjectBoard): Promise<IProjectBoard | null> => null,
+      update: async (pro: string, data: IUpdateProjectBoard): Promise<IProjectBoard | null> => {
+        void pro;
+        void data;
+
+        return null;
+      },
       delete: async (): Promise<void> => undefined
     };
 
@@ -53,7 +62,9 @@ describe('Type contracts', () => {
     };
 
     const projectPort: IProjectBoardInputPort = {
-      create: async (_projectBoard: ICreateProjectBoard): Promise<void> => undefined,
+      create: async (projectBoard: ICreateProjectBoard): Promise<void> => {
+        void projectBoard;
+      },
       listAll: async (): Promise<IProjectBoard[]> => [],
       listByAccessCode: async (): Promise<IProjectBoard[]> => [],
       getByPro: async (): Promise<IProjectBoard | null> => null,

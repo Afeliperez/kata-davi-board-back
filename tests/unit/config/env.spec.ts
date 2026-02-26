@@ -20,24 +20,24 @@ describe('EnvConfig', () => {
     delete process.env.JWT_SECRET;
     delete process.env.JWT_EXPIRES_IN;
 
-    jest.isolateModules(() => {
-      jest.doMock('dotenv', () => ({
-        __esModule: true,
-        default: { config: jest.fn() }
-      }));
-      const { EnvConfig } = require('@config/env');
-      const env = EnvConfig.get();
+    jest.doMock('dotenv', () => ({
+      __esModule: true,
+      default: { config: jest.fn() }
+    }));
 
-      expect(env.nodeEnv).toBe('development');
-      expect(env.port).toBe(3000);
-      expect(env.awsRegion).toBe('us-east-1');
-      expect(env.dynamodbEndpoint).toBeUndefined();
-      expect(env.dynamodbUsersTableName).toBe('account-kata');
-      expect(env.dynamodbProjectBoardTableName).toBe('project-board');
-      expect(env.apiPath).toBe('kata-api');
-      expect(env.jwtSecret).toBe('dev-secret-change-me');
-      expect(env.jwtExpiresIn).toBe('1h');
-    });
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { EnvConfig } = require('@config/env');
+    const env = EnvConfig.get();
+
+    expect(env.nodeEnv).toBe('development');
+    expect(env.port).toBe(3000);
+    expect(env.awsRegion).toBe('us-east-1');
+    expect(env.dynamodbEndpoint).toBeUndefined();
+    expect(env.dynamodbUsersTableName).toBe('account-kata');
+    expect(env.dynamodbProjectBoardTableName).toBe('project-board');
+    expect(env.apiPath).toBe('kata-api');
+    expect(env.jwtSecret).toBe('dev-secret-change-me');
+    expect(env.jwtExpiresIn).toBe('1h');
   });
 
   it('returns configured values from environment', () => {
@@ -51,23 +51,23 @@ describe('EnvConfig', () => {
     process.env.JWT_SECRET = 'secret-test';
     process.env.JWT_EXPIRES_IN = '30m';
 
-    jest.isolateModules(() => {
-      jest.doMock('dotenv', () => ({
-        __esModule: true,
-        default: { config: jest.fn() }
-      }));
-      const { EnvConfig } = require('@config/env');
-      const env = EnvConfig.get();
+    jest.doMock('dotenv', () => ({
+      __esModule: true,
+      default: { config: jest.fn() }
+    }));
 
-      expect(env.nodeEnv).toBe('test');
-      expect(env.port).toBe(4001);
-      expect(env.awsRegion).toBe('eu-west-3');
-      expect(env.dynamodbEndpoint).toBe('http://localhost:9000');
-      expect(env.dynamodbUsersTableName).toBe('users-test');
-      expect(env.dynamodbProjectBoardTableName).toBe('boards-test');
-      expect(env.apiPath).toBe('v1');
-      expect(env.jwtSecret).toBe('secret-test');
-      expect(env.jwtExpiresIn).toBe('30m');
-    });
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { EnvConfig } = require('@config/env');
+    const env = EnvConfig.get();
+
+    expect(env.nodeEnv).toBe('test');
+    expect(env.port).toBe(4001);
+    expect(env.awsRegion).toBe('eu-west-3');
+    expect(env.dynamodbEndpoint).toBe('http://localhost:9000');
+    expect(env.dynamodbUsersTableName).toBe('users-test');
+    expect(env.dynamodbProjectBoardTableName).toBe('boards-test');
+    expect(env.apiPath).toBe('v1');
+    expect(env.jwtSecret).toBe('secret-test');
+    expect(env.jwtExpiresIn).toBe('30m');
   });
 });

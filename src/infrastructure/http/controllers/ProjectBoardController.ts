@@ -66,16 +66,12 @@ export class ProjectBoardController {
   };
 
   listAll = async (request: Request, response: Response): Promise<void> => {
-    try {
-      const accessCode = this.getAccessCodeFromQuery(request);
-      const projectBoards = accessCode
-        ? await this.projectBoardUseCase.listByAccessCode(accessCode)
-        : await this.projectBoardUseCase.listAll();
+    const accessCode = this.getAccessCodeFromQuery(request);
+    const projectBoards = accessCode
+      ? await this.projectBoardUseCase.listByAccessCode(accessCode)
+      : await this.projectBoardUseCase.listAll();
 
-      response.status(200).json({ data: projectBoards });
-    } catch (error) {
-      throw error;
-    }
+    response.status(200).json({ data: projectBoards });
   };
 
   listByAccessCode = async (request: Request, response: Response): Promise<void> => {
@@ -86,29 +82,21 @@ export class ProjectBoardController {
       return;
     }
 
-    try {
-      const projectBoards = await this.projectBoardUseCase.listByAccessCode(accessCode);
+    const projectBoards = await this.projectBoardUseCase.listByAccessCode(accessCode);
 
-      response.status(200).json({ data: projectBoards });
-    } catch (error) {
-      throw error;
-    }
+    response.status(200).json({ data: projectBoards });
   };
 
   getByPro = async (request: Request, response: Response): Promise<void> => {
-    try {
-      const pro = this.getProFromParams(request);
-      const projectBoard = await this.projectBoardUseCase.getByPro(pro);
+    const pro = this.getProFromParams(request);
+    const projectBoard = await this.projectBoardUseCase.getByPro(pro);
 
-      if (!projectBoard) {
-        response.status(404).json({ error: 'Project-board no encontrado' });
-        return;
-      }
-
-      response.status(200).json({ data: projectBoard });
-    } catch (error) {
-      throw error;
+    if (!projectBoard) {
+      response.status(404).json({ error: 'Project-board no encontrado' });
+      return;
     }
+
+    response.status(200).json({ data: projectBoard });
   };
 
   update = async (request: Request, response: Response): Promise<void> => {

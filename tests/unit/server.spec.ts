@@ -47,6 +47,7 @@ describe('server bootstrap', () => {
   });
 
   it('validates dynamo connection and starts listening on configured port', async () => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     require('@/server');
     await new Promise((resolve) => setTimeout(resolve, 0));
 
