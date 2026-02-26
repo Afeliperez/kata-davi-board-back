@@ -6,6 +6,11 @@ const env = EnvConfig.get();
 const loginPath = `/${env.apiPath}/users/login`;
 
 export const authMiddleware = (request: Request, response: Response, next: NextFunction): void => {
+  if (request.method === 'OPTIONS') {
+    next();
+    return;
+  }
+
   if (request.method === 'POST' && request.path === loginPath) {
     next();
     return;

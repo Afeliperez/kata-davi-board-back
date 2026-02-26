@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { IUserUseCase } from '../../../domain/repositories/Contracts';
-import { CreateUser } from '../../../domain/entities/User';
+import { CreateUser, Role } from '../../../domain/entities/User';
 
 type AwsError = Error & { name?: string };
 
@@ -48,7 +48,7 @@ export class UserController {
       cc?: string;
       password?: string;
     };
-
+    console.log('Login attempt:', { cc, password: password ? '***' : undefined });
     if (!cc || !password) {
       response.status(400).json({ error: 'cc y password son requeridos' });
       return;
@@ -70,6 +70,11 @@ export class UserController {
 
     if (email === undefined && password === undefined && userName === undefined && role === undefined) {
       response.status(400).json({ error: 'Debe enviar al menos un campo para actualizar' });
+      return;
+    }
+
+    if (role !== undefined && !Object.values(Role).includes(role)) {
+      response.status(400).json({ error: 'Rol no permitido' });
       return;
     }
 
