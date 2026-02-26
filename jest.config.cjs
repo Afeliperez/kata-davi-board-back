@@ -4,7 +4,14 @@ module.exports = {
   testEnvironment: 'node',
   roots: ['<rootDir>/tests'],
   clearMocks: true,
-  collectCoverageFrom: ['src/**/*.ts', '!src/main/**'],
+  coverageThreshold: {
+    global: {
+      branches: 90,
+      functions: 90,
+      lines: 90,
+      statements: 90
+    }
+  },
   moduleFileExtensions: ['ts', 'js', 'json'],
   testMatch: ['**/*.spec.ts'],
   moduleNameMapper: {
