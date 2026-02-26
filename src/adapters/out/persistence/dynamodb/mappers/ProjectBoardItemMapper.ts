@@ -1,4 +1,4 @@
-import { IProjectBoard } from '../../../../../domain/entities/ProjectBoard';
+import { IProjectBoard } from '@domain/entities/ProjectBoard';
 
 export interface IProjectBoardItem {
   pro: string;

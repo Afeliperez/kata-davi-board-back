@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
-import { ICreateUser, Role } from '../../../../domain/entities/User';
-import { IUserInputPort } from '../../../../application/ports/in/userInputPort';
+import { ICreateUser, Role } from '@domain/entities/User';
+import { IUserInputPort } from '@application/ports/in/userInputPort';
+import { rethrowWithContext } from '@shared/errors/rethrowWithContext';
 
 type AwsError = Error & { name?: string };
 
@@ -33,14 +34,18 @@ export class UserController {
         return;
       }
 
-      throw error;
+      throw rethrowWithContext(error, 'UserController.create');
     }
   };
 
   listAll = async (_request: Request, response: Response): Promise<void> => {
-    const users = await this.userUseCase.listAll();
+    try {
+      const users = await this.userUseCase.listAll();
 
-    response.status(200).json({ data: users });
+      response.status(200).json({ data: users });
+    } catch (error) {
+      throw rethrowWithContext(error, 'UserController.listAll');
+    }
   };
 
   login = async (request: Request, response: Response): Promise<void> => {
@@ -53,14 +58,18 @@ export class UserController {
       return;
     }
 
-    const loginResult = await this.userUseCase.login(cc, password);
+    try {
+      const loginResult = await this.userUseCase.login(cc, password);
 
-    if (!loginResult) {
-      response.status(401).json({ error: 'Credenciales inválidas' });
-      return;
+      if (!loginResult) {
+        response.status(401).json({ error: 'Credenciales inválidas' });
+        return;
+      }
+
+      response.status(200).json({ data: loginResult });
+    } catch (error) {
+      throw rethrowWithContext(error, 'UserController.login');
     }
-
-    response.status(200).json({ data: loginResult });
   };
 
   update = async (request: Request, response: Response): Promise<void> => {
@@ -106,7 +115,7 @@ export class UserController {
         return;
       }
 
-      throw error;
+      throw rethrowWithContext(error, 'UserController.update');
     }
   };
 
@@ -124,7 +133,7 @@ export class UserController {
         return;
       }
 
-      throw error;
+      throw rethrowWithContext(error, 'UserController.delete');
     }
   };
 }

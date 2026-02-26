@@ -1,4 +1,4 @@
-import { ICreateUser, Role, IUser } from '../../../../../domain/entities/User';
+import { ICreateUser, Role, IUser } from '@domain/entities/User';
 
 export interface IUserItem {
   cc: string;

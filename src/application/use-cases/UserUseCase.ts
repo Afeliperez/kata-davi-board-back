@@ -1,7 +1,8 @@
-import { ICreateUser, IUser } from '../../domain/entities/User';
-import { IUserRepository } from '../../domain/repositories/userRepository';
-import { ITokenService } from '../../domain/services/tokenService';
-import { ILoginResult, IUserInputPort } from '../ports/in/userInputPort';
+import { ICreateUser, IUser } from '@domain/entities/User';
+import { IUserRepository } from '@domain/repositories/userRepository';
+import { ITokenService } from '@domain/services/tokenService';
+import { ILoginResult, IUserInputPort } from '@application/ports/in/userInputPort';
+import { rethrowWithContext } from '@shared/errors/rethrowWithContext';
 
 export class UserUseCase implements IUserInputPort {
   constructor(
@@ -10,12 +11,16 @@ export class UserUseCase implements IUserInputPort {
   ) {}
 
   async create(user: ICreateUser): Promise<void> {
-    const hashedPassword = await this.hashPassword(user.password);
-    const userToCreate: ICreateUser = {
-      ...user,
-      password: hashedPassword
-    };
-    await this.userRepository.create(userToCreate);
+    try {
+      const hashedPassword = await this.hashPassword(user.password);
+      const userToCreate: ICreateUser = {
+        ...user,
+        password: hashedPassword
+      };
+      await this.userRepository.create(userToCreate);
+    } catch (error) {
+      throw rethrowWithContext(error, 'UserUseCase.create');
+    }
   }
 
   async listAll(): Promise<IUser[]> {
@@ -23,45 +28,57 @@ export class UserUseCase implements IUserInputPort {
   }
 
   async login(cc: string, password: string): Promise<ILoginResult | null> {
-    const userWithPassword = await this.userRepository.getByCcWithPassword(cc);
+    try {
+      const userWithPassword = await this.userRepository.getByCcWithPassword(cc);
 
-    if (!userWithPassword || !(await this.verifyPassword(password, userWithPassword.password))) {
-      return null;
+      if (!userWithPassword || !(await this.verifyPassword(password, userWithPassword.password))) {
+        return null;
+      }
+
+      const user: IUser = {
+        cc: userWithPassword.cc,
+        email: userWithPassword.email,
+        userName: userWithPassword.userName,
+        role: userWithPassword.role
+      };
+
+      const token = this.tokenService.sign({
+        cc: user.cc,
+        role: user.role
+      });
+
+      return {
+        user,
+        token
+      };
+    } catch (error) {
+      throw rethrowWithContext(error, 'UserUseCase.login');
     }
-
-    const user: IUser = {
-      cc: userWithPassword.cc,
-      email: userWithPassword.email,
-      userName: userWithPassword.userName,
-      role: userWithPassword.role
-    };
-
-    const token = this.tokenService.sign({
-      cc: user.cc,
-      role: user.role
-    });
-
-    return {
-      user,
-      token
-    };
   }
 
   async update(cc: string, data: Partial<ICreateUser>): Promise<IUser | null> {
-    if (!data.password) {
-      return this.userRepository.update(cc, data);
+    try {
+      if (!data.password) {
+        return this.userRepository.update(cc, data);
+      }
+
+      const hashedPassword = await this.hashPassword(data.password);
+
+      return this.userRepository.update(cc, {
+        ...data,
+        password: hashedPassword
+      });
+    } catch (error) {
+      throw rethrowWithContext(error, 'UserUseCase.update');
     }
-
-    const hashedPassword = await this.hashPassword(data.password);
-
-    return this.userRepository.update(cc, {
-      ...data,
-      password: hashedPassword
-    });
   }
 
   async delete(cc: string): Promise<void> {
-    await this.userRepository.delete(cc);
+    try {
+      await this.userRepository.delete(cc);
+    } catch (error) {
+      throw rethrowWithContext(error, 'UserUseCase.delete');
+    }
   }
 
   private async hashPassword(password: string): Promise<string> {

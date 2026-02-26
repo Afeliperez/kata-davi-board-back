@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { EnvConfig } from '../../../config/env';
-import { ITokenService } from '../../../domain/services/tokenService';
+import { EnvConfig } from '@config/env';
+import { ITokenService } from '@domain/services/tokenService';
 
 export class JwtTokenService implements ITokenService {
   sign(payload: Record<string, string>): string {

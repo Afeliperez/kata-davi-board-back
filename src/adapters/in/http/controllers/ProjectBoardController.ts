@@ -2,8 +2,9 @@ import { Request, Response } from 'express';
 import {
   ICreateProjectBoard,
   IUpdateProjectBoard
-} from '../../../../domain/entities/ProjectBoard';
-import { IProjectBoardInputPort } from '../../../../application/ports/in/projectBoardInputPort';
+} from '@domain/entities/ProjectBoard';
+import { IProjectBoardInputPort } from '@application/ports/in/projectBoardInputPort';
+import { rethrowWithContext } from '@shared/errors/rethrowWithContext';
 
 type AwsError = Error & { name?: string };
 
@@ -61,17 +62,21 @@ export class ProjectBoardController {
         return;
       }
 
-      throw error;
+      throw rethrowWithContext(error, 'ProjectBoardController.create');
     }
   };
 
   listAll = async (request: Request, response: Response): Promise<void> => {
-    const accessCode = this.getAccessCodeFromQuery(request);
-    const projectBoards = accessCode
-      ? await this.projectBoardUseCase.listByAccessCode(accessCode)
-      : await this.projectBoardUseCase.listAll();
+    try {
+      const accessCode = this.getAccessCodeFromQuery(request);
+      const projectBoards = accessCode
+        ? await this.projectBoardUseCase.listByAccessCode(accessCode)
+        : await this.projectBoardUseCase.listAll();
 
-    response.status(200).json({ data: projectBoards });
+      response.status(200).json({ data: projectBoards });
+    } catch (error) {
+      throw rethrowWithContext(error, 'ProjectBoardController.listAll');
+    }
   };
 
   listByAccessCode = async (request: Request, response: Response): Promise<void> => {
@@ -82,21 +87,29 @@ export class ProjectBoardController {
       return;
     }
 
-    const projectBoards = await this.projectBoardUseCase.listByAccessCode(accessCode);
+    try {
+      const projectBoards = await this.projectBoardUseCase.listByAccessCode(accessCode);
 
-    response.status(200).json({ data: projectBoards });
+      response.status(200).json({ data: projectBoards });
+    } catch (error) {
+      throw rethrowWithContext(error, 'ProjectBoardController.listByAccessCode');
+    }
   };
 
   getByPro = async (request: Request, response: Response): Promise<void> => {
-    const pro = this.getProFromParams(request);
-    const projectBoard = await this.projectBoardUseCase.getByPro(pro);
+    try {
+      const pro = this.getProFromParams(request);
+      const projectBoard = await this.projectBoardUseCase.getByPro(pro);
 
-    if (!projectBoard) {
-      response.status(404).json({ error: 'Project-board no encontrado' });
-      return;
+      if (!projectBoard) {
+        response.status(404).json({ error: 'Project-board no encontrado' });
+        return;
+      }
+
+      response.status(200).json({ data: projectBoard });
+    } catch (error) {
+      throw rethrowWithContext(error, 'ProjectBoardController.getByPro');
     }
-
-    response.status(200).json({ data: projectBoard });
   };
 
   update = async (request: Request, response: Response): Promise<void> => {
@@ -129,7 +142,7 @@ export class ProjectBoardController {
         return;
       }
 
-      throw error;
+      throw rethrowWithContext(error, 'ProjectBoardController.update');
     }
   };
 
@@ -147,7 +160,7 @@ export class ProjectBoardController {
         return;
       }
 
-      throw error;
+      throw rethrowWithContext(error, 'ProjectBoardController.delete');
     }
   };
 }

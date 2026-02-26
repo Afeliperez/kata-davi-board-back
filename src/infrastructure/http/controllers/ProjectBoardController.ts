@@ -1,14 +1,14 @@
 import { Request, Response } from 'express';
 import {
-  CreateProjectBoard,
-  UpdateProjectBoard
-} from '../../../domain/entities/ProjectBoard';
-import { ProjectBoardInputPort } from '../../../application/ports/in/projectBoardInputPort';
+  ICreateProjectBoard,
+  IUpdateProjectBoard
+} from '@domain/entities/ProjectBoard';
+import { IProjectBoardInputPort } from '@application/ports/in/projectBoardInputPort';
 
 type AwsError = Error & { name?: string };
 
 export class ProjectBoardController {
-  constructor(private readonly projectBoardUseCase: ProjectBoardInputPort) {}
+  constructor(private readonly projectBoardUseCase: IProjectBoardInputPort) {}
 
   private getProFromParams(request: Request): string {
     const { pro } = request.params;
@@ -35,7 +35,7 @@ export class ProjectBoardController {
   }
 
   create = async (request: Request, response: Response): Promise<void> => {
-    const { pro, projectName, hu, accesos } = request.body as CreateProjectBoard;
+    const { pro, projectName, hu, accesos } = request.body as ICreateProjectBoard;
 
     if (!pro || !projectName || !Array.isArray(hu) || !Array.isArray(accesos)) {
       response.status(400).json({
@@ -66,12 +66,16 @@ export class ProjectBoardController {
   };
 
   listAll = async (request: Request, response: Response): Promise<void> => {
-    const accessCode = this.getAccessCodeFromQuery(request);
-    const projectBoards = accessCode
-      ? await this.projectBoardUseCase.listByAccessCode(accessCode)
-      : await this.projectBoardUseCase.listAll();
+    try {
+      const accessCode = this.getAccessCodeFromQuery(request);
+      const projectBoards = accessCode
+        ? await this.projectBoardUseCase.listByAccessCode(accessCode)
+        : await this.projectBoardUseCase.listAll();
 
-    response.status(200).json({ data: projectBoards });
+      response.status(200).json({ data: projectBoards });
+    } catch (error) {
+      throw error;
+    }
   };
 
   listByAccessCode = async (request: Request, response: Response): Promise<void> => {
@@ -82,26 +86,34 @@ export class ProjectBoardController {
       return;
     }
 
-    const projectBoards = await this.projectBoardUseCase.listByAccessCode(accessCode);
+    try {
+      const projectBoards = await this.projectBoardUseCase.listByAccessCode(accessCode);
 
-    response.status(200).json({ data: projectBoards });
+      response.status(200).json({ data: projectBoards });
+    } catch (error) {
+      throw error;
+    }
   };
 
   getByPro = async (request: Request, response: Response): Promise<void> => {
-    const pro = this.getProFromParams(request);
-    const projectBoard = await this.projectBoardUseCase.getByPro(pro);
+    try {
+      const pro = this.getProFromParams(request);
+      const projectBoard = await this.projectBoardUseCase.getByPro(pro);
 
-    if (!projectBoard) {
-      response.status(404).json({ error: 'Project-board no encontrado' });
-      return;
+      if (!projectBoard) {
+        response.status(404).json({ error: 'Project-board no encontrado' });
+        return;
+      }
+
+      response.status(200).json({ data: projectBoard });
+    } catch (error) {
+      throw error;
     }
-
-    response.status(200).json({ data: projectBoard });
   };
 
   update = async (request: Request, response: Response): Promise<void> => {
     const pro = this.getProFromParams(request);
-    const { projectName, hu, accesos } = request.body as UpdateProjectBoard;
+    const { projectName, hu, accesos } = request.body as IUpdateProjectBoard;
 
     if (projectName === undefined && hu === undefined && accesos === undefined) {
       response.status(400).json({ error: 'Debe enviar al menos un campo para actualizar' });

@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
-import { EnvConfig } from '../../../../config/env';
+import { EnvConfig } from '@config/env';
 
 const env = EnvConfig.get();
 const loginPath = `/${env.apiPath}/users/login`;

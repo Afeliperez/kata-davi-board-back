@@ -4,22 +4,27 @@ import {
   IHuItem,
   IProjectBoard,
   IUpdateProjectBoard
-} from '../../domain/entities/ProjectBoard';
-import { IProjectBoardRepository } from '../../domain/repositories/projectBoardRepository';
-import { IProjectBoardInputPort } from '../ports/in/projectBoardInputPort';
+} from '@domain/entities/ProjectBoard';
+import { IProjectBoardRepository } from '@domain/repositories/projectBoardRepository';
+import { IProjectBoardInputPort } from '@application/ports/in/projectBoardInputPort';
+import { rethrowWithContext } from '@shared/errors/rethrowWithContext';
 
 export class ProjectBoardUseCase implements IProjectBoardInputPort {
   constructor(private readonly projectBoardRepository: IProjectBoardRepository) {}
 
   async create(projectBoard: ICreateProjectBoard): Promise<void> {
-    const model: IProjectBoard = {
-      pro: projectBoard.pro,
-      projectName: projectBoard.projectName,
-      accesos: projectBoard.accesos,
-      hu: this.normalizeNewHu(projectBoard.hu)
-    };
+    try {
+      const model: IProjectBoard = {
+        pro: projectBoard.pro,
+        projectName: projectBoard.projectName,
+        accesos: projectBoard.accesos,
+        hu: this.normalizeNewHu(projectBoard.hu)
+      };
 
-    await this.projectBoardRepository.create(model);
+      await this.projectBoardRepository.create(model);
+    } catch (error) {
+      throw rethrowWithContext(error, 'ProjectBoardUseCase.create');
+    }
   }
 
   async listAll(): Promise<IProjectBoard[]> {
@@ -52,7 +57,11 @@ export class ProjectBoardUseCase implements IProjectBoardInputPort {
   }
 
   async delete(pro: string): Promise<void> {
-    await this.projectBoardRepository.delete(pro);
+    try {
+      await this.projectBoardRepository.delete(pro);
+    } catch (error) {
+      throw rethrowWithContext(error, 'ProjectBoardUseCase.delete');
+    }
   }
 
   private normalizeNewHu(items: Array<Omit<IHuItem, 'codigo'>>): IHuItem[] {

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { ProjectBoardController } from '../controllers/projectBoardController';
+import { ProjectBoardController } from '@adapters/in/http/controllers/projectBoardController';
 
 export const projectBoardRoutes = (projectBoardController: ProjectBoardController): Router => {
   const router = Router();

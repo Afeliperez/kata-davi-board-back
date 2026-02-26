@@ -1,4 +1,4 @@
-import { ICreateUser, IUser } from '../../../domain/entities/User';
+import { ICreateUser, IUser } from '@domain/entities/User';
 
 export interface ILoginResult {
   user: IUser;

@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
-import { CreateUser, Role } from '../../../domain/entities/User';
-import { UserInputPort } from '../../../application/ports/in/userInputPort';
+import { ICreateUser, Role } from '@domain/entities/User';
+import { IUserInputPort } from '@application/ports/in/userInputPort';
 
 type AwsError = Error & { name?: string };
 
 export class UserController {
-  constructor(private readonly userUseCase: UserInputPort) {}
+  constructor(private readonly userUseCase: IUserInputPort) {}
 
   private getCcFromParams(request: Request): string {
     const { cc } = request.params;
@@ -14,7 +14,7 @@ export class UserController {
   }
 
   create = async (request: Request, response: Response): Promise<void> => {
-    const { cc, email, password, userName, role } = request.body as CreateUser;
+    const { cc, email, password, userName, role } = request.body as ICreateUser;
 
     if (!cc || !email || !password || !userName || !role) {
       response.status(400).json({ error: 'cc, email, password, userName y role son requeridos' });
@@ -38,9 +38,13 @@ export class UserController {
   };
 
   listAll = async (_request: Request, response: Response): Promise<void> => {
-    const users = await this.userUseCase.listAll();
+    try {
+      const users = await this.userUseCase.listAll();
 
-    response.status(200).json({ data: users });
+      response.status(200).json({ data: users });
+    } catch (error) {
+      throw error;
+    }
   };
 
   login = async (request: Request, response: Response): Promise<void> => {
@@ -53,19 +57,23 @@ export class UserController {
       return;
     }
 
-    const loginResult = await this.userUseCase.login(cc, password);
+    try {
+      const loginResult = await this.userUseCase.login(cc, password);
 
-    if (!loginResult) {
-      response.status(401).json({ error: 'Credenciales inválidas' });
-      return;
+      if (!loginResult) {
+        response.status(401).json({ error: 'Credenciales inválidas' });
+        return;
+      }
+
+      response.status(200).json({ data: loginResult });
+    } catch (error) {
+      throw error;
     }
-
-    response.status(200).json({ data: loginResult });
   };
 
   update = async (request: Request, response: Response): Promise<void> => {
     const cc = this.getCcFromParams(request);
-    const { email, password, userName, role } = request.body as Partial<CreateUser>;
+    const { email, password, userName, role } = request.body as Partial<ICreateUser>;
 
     if (email === undefined && password === undefined && userName === undefined && role === undefined) {
       response.status(400).json({ error: 'Debe enviar al menos un campo para actualizar' });

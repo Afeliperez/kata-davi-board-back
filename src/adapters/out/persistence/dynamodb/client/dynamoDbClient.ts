@@ -1,6 +1,6 @@
 import { DynamoDBClient, DynamoDBClientConfig } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
-import { EnvConfig } from '../../../../../config/env';
+import { EnvConfig } from '@config/env';
 
 export class DynamoDbClient {
   static create(config?: DynamoDBClientConfig): DynamoDBDocumentClient {
