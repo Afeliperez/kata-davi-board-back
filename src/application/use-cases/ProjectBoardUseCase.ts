@@ -1,18 +1,18 @@
 import { randomUUID } from 'crypto';
 import {
-  CreateProjectBoard,
-  HuItem,
-  ProjectBoard,
-  UpdateProjectBoard
+  ICreateProjectBoard,
+  IHuItem,
+  IProjectBoard,
+  IUpdateProjectBoard
 } from '../../domain/entities/ProjectBoard';
-import { IProjectBoardUseCase } from '../../domain/repositories/Contracts';
-import { ProjectBoardRepository } from '../../domain/repositories/ProjectBoardRepository';
+import { IProjectBoardRepository } from '../../domain/repositories/projectBoardRepository';
+import { IProjectBoardInputPort } from '../ports/in/projectBoardInputPort';
 
-export class ProjectBoardUseCase implements IProjectBoardUseCase {
-  constructor(private readonly projectBoardRepository: ProjectBoardRepository) {}
+export class ProjectBoardUseCase implements IProjectBoardInputPort {
+  constructor(private readonly projectBoardRepository: IProjectBoardRepository) {}
 
-  async create(projectBoard: CreateProjectBoard): Promise<void> {
-    const model: ProjectBoard = {
+  async create(projectBoard: ICreateProjectBoard): Promise<void> {
+    const model: IProjectBoard = {
       pro: projectBoard.pro,
       projectName: projectBoard.projectName,
       accesos: projectBoard.accesos,
@@ -22,20 +22,20 @@ export class ProjectBoardUseCase implements IProjectBoardUseCase {
     await this.projectBoardRepository.create(model);
   }
 
-  async listAll(): Promise<ProjectBoard[]> {
+  async listAll(): Promise<IProjectBoard[]> {
     return this.projectBoardRepository.listAll();
   }
 
-  async listByAccessCode(accessCode: string): Promise<ProjectBoard[]> {
+  async listByAccessCode(accessCode: string): Promise<IProjectBoard[]> {
     return this.projectBoardRepository.listByAccessCode(accessCode);
   }
 
-  async getByPro(pro: string): Promise<ProjectBoard | null> {
+  async getByPro(pro: string): Promise<IProjectBoard | null> {
     return this.projectBoardRepository.getByPro(pro);
   }
 
-  async update(pro: string, data: UpdateProjectBoard): Promise<ProjectBoard | null> {
-    const updateData: UpdateProjectBoard = {
+  async update(pro: string, data: IUpdateProjectBoard): Promise<IProjectBoard | null> {
+    const updateData: IUpdateProjectBoard = {
       ...data
     };
 
@@ -55,7 +55,7 @@ export class ProjectBoardUseCase implements IProjectBoardUseCase {
     await this.projectBoardRepository.delete(pro);
   }
 
-  private normalizeNewHu(items: Array<Omit<HuItem, 'codigo'>>): HuItem[] {
+  private normalizeNewHu(items: Array<Omit<IHuItem, 'codigo'>>): IHuItem[] {
     return items.map((item) => ({
       hu: item.hu,
       descripcion: item.descripcion,

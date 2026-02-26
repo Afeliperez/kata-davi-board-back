@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-export interface EnvironmentConfig {
+export interface IEnvironmentConfig {
   nodeEnv: string;
   port: number;
   awsRegion: string;
@@ -20,7 +20,7 @@ export interface EnvironmentConfig {
 
 export class EnvConfig {
 
-  static get(): EnvironmentConfig {
+  static get(): IEnvironmentConfig {
     return {
       nodeEnv: process.env.NODE_ENV ?? 'development',
       port: Number(process.env.PORT ?? 3000),

@@ -6,24 +6,33 @@ Base backend con arquitectura hexagonal usando **Express + TypeScript + Jest**.
 
 ```text
 src/
+	application/
+		ports/in/
+		use-cases/
+	adapters/
+		in/http/
+		out/persistence/
+		out/security/
+	config/
 	domain/
 		entities/
 		repositories/
-	application/
-		use-cases/
-	infrastructure/
-		http/
-			controllers/
-			routes/
-		persistence/
+		services/
 	main/
-		app.ts
-		server.ts
+		httpDependencyInjection.ts
+	app.ts
+	server.ts
 
 tests/
 	unit/
 	integration/
 ```
+
+### Enfoque aplicado
+
+- **Hexagonal**: controladores/rutas como adaptadores de entrada, repositorios/token como adaptadores de salida, casos de uso en aplicación.
+- **SOLID**: puertos de entrada separados por contexto (`ListBoardsInputPort`, `UserInputPort`, `ProjectBoardInputPort`) y composición explícita en `main/httpDependencyInjection.ts`.
+- **DRY**: eliminación de providers duplicados y centralización del cableado de dependencias en un solo punto.
 
 ## Scripts
 
@@ -50,7 +59,7 @@ Si la conexión o permisos fallan, la app termina con error.
 
 ## Variables de entorno
 
-Se usa `dotenv` con configuración central en [src/main/config/env.ts](src/main/config/env.ts).
+Se usa `dotenv` con configuración central en [src/config/env.ts](src/config/env.ts).
 
 1. Crea un archivo `.env` en la raíz usando `.env.example` como base.
 2. Variables disponibles:

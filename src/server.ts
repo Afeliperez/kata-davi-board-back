@@ -1,19 +1,13 @@
 import { ListTablesCommand } from '@aws-sdk/client-dynamodb';
-import { ListBoardsUseCase } from './application/use-cases/ListBoardsUseCase';
-import { BoardController } from './infrastructure/http/controllers/BoardController';
-import { InMemoryBoardRepository } from './infrastructure/persistence/InMemoryBoardRepository';
-import { DynamoDbClient } from './infrastructure/persistence/dynamodb/client/dynamoDbClient';
+import { DynamoDbClient } from './adapters/out/persistence/dynamodb/client/dynamoDbClient';
+import { createHttpDependencies } from './main/httpDependencyInjection';
 import { createApp } from './app';
 import { EnvConfig } from './config/env';
 
 const env = EnvConfig.get();
 const port = env.port;
 
-const boardRepository = new InMemoryBoardRepository();
-const listBoardsUseCase = new ListBoardsUseCase(boardRepository);
-const boardController = new BoardController(listBoardsUseCase);
-
-const app = createApp(boardController);
+const app = createApp(createHttpDependencies());
 
 const validateDynamoConnection = async (): Promise<void> => {
   const dynamoClient = DynamoDbClient.create();

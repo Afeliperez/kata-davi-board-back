@@ -6,14 +6,14 @@
   QA = 'QA'
 }
 
-export interface User {
+export interface IUser {
 	cc: string;
 	email: string;
 	userName: string;
 	role: Role;
 }
 
-export interface CreateUser extends User {
+export interface ICreateUser extends IUser {
 	password: string;
 }
 

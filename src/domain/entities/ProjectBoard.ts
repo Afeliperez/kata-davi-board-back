@@ -1,26 +1,26 @@
-export interface HuItem {
+export interface IHuItem {
   hu: string;
   descripcion: string;
   status: string;
   codigo: string;
 }
 
-export interface ProjectBoard {
+export interface IProjectBoard {
   pro: string;
   projectName: string;
-  hu: HuItem[];
+  hu: IHuItem[];
   accesos: string[];
 }
 
-export interface CreateProjectBoard {
+export interface ICreateProjectBoard {
   pro: string;
   projectName: string;
-  hu: Omit<HuItem, 'codigo'>[];
+  hu: Omit<IHuItem, 'codigo'>[];
   accesos: string[];
 }
 
-export interface UpdateProjectBoard {
+export interface IUpdateProjectBoard {
   projectName?: string;
-  hu?: Array<Partial<HuItem> & Pick<HuItem, 'hu' | 'descripcion' | 'status'>>;
+  hu?: Array<Partial<IHuItem> & Pick<IHuItem, 'hu' | 'descripcion' | 'status'>>;
   accesos?: string[];
 }

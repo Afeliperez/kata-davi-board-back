@@ -1,14 +1,14 @@
 import { Request, Response } from 'express';
 import {
-  CreateProjectBoard,
-  UpdateProjectBoard
-} from '../../../domain/entities/ProjectBoard';
-import { ProjectBoardInputPort } from '../../../application/ports/in/projectBoardInputPort';
+  ICreateProjectBoard,
+  IUpdateProjectBoard
+} from '../../../../domain/entities/ProjectBoard';
+import { IProjectBoardInputPort } from '../../../../application/ports/in/projectBoardInputPort';
 
 type AwsError = Error & { name?: string };
 
 export class ProjectBoardController {
-  constructor(private readonly projectBoardUseCase: ProjectBoardInputPort) {}
+  constructor(private readonly projectBoardUseCase: IProjectBoardInputPort) {}
 
   private getProFromParams(request: Request): string {
     const { pro } = request.params;
@@ -35,7 +35,7 @@ export class ProjectBoardController {
   }
 
   create = async (request: Request, response: Response): Promise<void> => {
-    const { pro, projectName, hu, accesos } = request.body as CreateProjectBoard;
+    const { pro, projectName, hu, accesos } = request.body as ICreateProjectBoard;
 
     if (!pro || !projectName || !Array.isArray(hu) || !Array.isArray(accesos)) {
       response.status(400).json({
@@ -101,7 +101,7 @@ export class ProjectBoardController {
 
   update = async (request: Request, response: Response): Promise<void> => {
     const pro = this.getProFromParams(request);
-    const { projectName, hu, accesos } = request.body as UpdateProjectBoard;
+    const { projectName, hu, accesos } = request.body as IUpdateProjectBoard;
 
     if (projectName === undefined && hu === undefined && accesos === undefined) {
       response.status(400).json({ error: 'Debe enviar al menos un campo para actualizar' });

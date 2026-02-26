@@ -1,35 +1,35 @@
-import { CreateUser, User } from '../../domain/entities/User';
-import { LoginResult, IUserUseCase } from '../../domain/repositories/Contracts';
-import { UserRepository } from '../../domain/repositories/UserRepository';
-import { TokenService } from '../../domain/services/TokenService';
+import { ICreateUser, IUser } from '../../domain/entities/User';
+import { IUserRepository } from '../../domain/repositories/userRepository';
+import { ITokenService } from '../../domain/services/tokenService';
+import { ILoginResult, IUserInputPort } from '../ports/in/userInputPort';
 
-export class UserUseCase implements IUserUseCase {
+export class UserUseCase implements IUserInputPort {
   constructor(
-    private readonly userRepository: UserRepository,
-    private readonly tokenService: TokenService
+    private readonly userRepository: IUserRepository,
+    private readonly tokenService: ITokenService
   ) {}
 
-  async create(user: CreateUser): Promise<void> {
+  async create(user: ICreateUser): Promise<void> {
     const hashedPassword = await this.hashPassword(user.password);
-    const userToCreate: CreateUser = {
+    const userToCreate: ICreateUser = {
       ...user,
       password: hashedPassword
     };
     await this.userRepository.create(userToCreate);
   }
 
-  async listAll(): Promise<User[]> {
+  async listAll(): Promise<IUser[]> {
     return this.userRepository.listAll();
   }
 
-  async login(cc: string, password: string): Promise<LoginResult | null> {
+  async login(cc: string, password: string): Promise<ILoginResult | null> {
     const userWithPassword = await this.userRepository.getByCcWithPassword(cc);
 
     if (!userWithPassword || !(await this.verifyPassword(password, userWithPassword.password))) {
       return null;
     }
 
-    const user: User = {
+    const user: IUser = {
       cc: userWithPassword.cc,
       email: userWithPassword.email,
       userName: userWithPassword.userName,
@@ -47,7 +47,7 @@ export class UserUseCase implements IUserUseCase {
     };
   }
 
-  async update(cc: string, data: Partial<CreateUser>): Promise<User | null> {
+  async update(cc: string, data: Partial<ICreateUser>): Promise<IUser | null> {
     if (!data.password) {
       return this.userRepository.update(cc, data);
     }

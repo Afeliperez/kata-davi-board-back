@@ -1,10 +1,10 @@
-import { CreateUser, User } from '../entities/User';
+import { ICreateUser, IUser } from '../entities/User';
 
-export interface UserRepository {
-  create(user: CreateUser): Promise<void>;
-  listAll(): Promise<User[]>;
-  getByCcWithPassword(cc: string): Promise<CreateUser | null>;
-  getByCc(cc: string): Promise<User | null>;
-  update(cc: string, data: Partial<CreateUser>): Promise<User | null>;
+export interface IUserRepository {
+  create(user: ICreateUser): Promise<void>;
+  listAll(): Promise<IUser[]>;
+  getByCcWithPassword(cc: string): Promise<ICreateUser | null>;
+  getByCc(cc: string): Promise<IUser | null>;
+  update(cc: string, data: Partial<ICreateUser>): Promise<IUser | null>;
   delete(cc: string): Promise<void>;
 }

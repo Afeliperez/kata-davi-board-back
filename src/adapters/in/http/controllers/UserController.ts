@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
-import { CreateUser, Role } from '../../../domain/entities/User';
-import { UserInputPort } from '../../../application/ports/in/userInputPort';
+import { ICreateUser, Role } from '../../../../domain/entities/User';
+import { IUserInputPort } from '../../../../application/ports/in/userInputPort';
 
 type AwsError = Error & { name?: string };
 
 export class UserController {
-  constructor(private readonly userUseCase: UserInputPort) {}
+  constructor(private readonly userUseCase: IUserInputPort) {}
 
   private getCcFromParams(request: Request): string {
     const { cc } = request.params;
@@ -14,7 +14,7 @@ export class UserController {
   }
 
   create = async (request: Request, response: Response): Promise<void> => {
-    const { cc, email, password, userName, role } = request.body as CreateUser;
+    const { cc, email, password, userName, role } = request.body as ICreateUser;
 
     if (!cc || !email || !password || !userName || !role) {
       response.status(400).json({ error: 'cc, email, password, userName y role son requeridos' });
@@ -65,7 +65,7 @@ export class UserController {
 
   update = async (request: Request, response: Response): Promise<void> => {
     const cc = this.getCcFromParams(request);
-    const { email, password, userName, role } = request.body as Partial<CreateUser>;
+    const { email, password, userName, role } = request.body as Partial<ICreateUser>;
 
     if (email === undefined && password === undefined && userName === undefined && role === undefined) {
       response.status(400).json({ error: 'Debe enviar al menos un campo para actualizar' });

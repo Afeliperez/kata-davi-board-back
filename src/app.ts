@@ -1,15 +1,20 @@
 import express, { Express } from 'express';
-import { BoardController } from './infrastructure/http/controllers/BoardController';
-import { authMiddleware } from './infrastructure/http/middlewares/authMiddleware';
-import { errorHandler } from './infrastructure/http/middlewares/errorHandler';
-import { boardRoutes } from './infrastructure/http/routes/boardRoutes';
-import { projectBoardRoutes } from './infrastructure/http/routes/projectBoardRoutes';
-import { userRoutes } from './infrastructure/http/routes/userRoutes';
+import { ProjectBoardController } from './adapters/in/http/controllers/projectBoardController';
+import { UserController } from './adapters/in/http/controllers/userController';
+import { authMiddleware } from './adapters/in/http/middlewares/authMiddleware';
+import { errorHandler } from './adapters/in/http/middlewares/errorHandler';
+import { projectBoardRoutes } from './adapters/in/http/routes/projectBoardRoutes';
+import { userRoutes } from './adapters/in/http/routes/userRoutes';
 import { HttpConfig } from './config/http';
 import { EnvConfig } from './config/env';
 
-export const createApp = (_boardController?: BoardController): Express => {
-  void _boardController;
+export interface IAppDependencies {
+  projectBoardController?: ProjectBoardController;
+  userController?: UserController;
+}
+
+export const createApp = (dependencies: IAppDependencies = {}): Express => {
+  const { projectBoardController, userController } = dependencies;
 
   const app = express();
   const env = EnvConfig.get();
@@ -18,16 +23,14 @@ export const createApp = (_boardController?: BoardController): Express => {
   HttpConfig.getInstance().configure(app);
   app.use(authMiddleware);
 
-  app.get('/health', (_request, response) => {
-    response.status(200).json({ status: 'ok' });
-  });
 
-  if (_boardController) {
-    app.use('/boards', boardRoutes(_boardController));
+  if (projectBoardController) {
+    app.use(`/${apiPath}/project-boards`, projectBoardRoutes(projectBoardController));
   }
 
-  app.use(`/${apiPath}/project-boards`, projectBoardRoutes());
-  app.use(`/${apiPath}/users`, userRoutes());
+  if (userController) {
+    app.use(`/${apiPath}/users`, userRoutes(userController));
+  }
 
   app.use(errorHandler);
 
